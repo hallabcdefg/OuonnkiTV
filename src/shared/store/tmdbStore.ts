@@ -38,6 +38,10 @@ interface TmdbState {
   airingTodayTv: TmdbMediaItem[]
   trending: TmdbMediaItem[]
 
+  // 国产内容（产地=中国大陆）
+  domesticTv: TmdbMediaItem[]
+  domesticMovie: TmdbMediaItem[],
+
   // 推荐
   recommendations: TmdbMediaItem[]
   recommendationSourceId: number | null // 推荐来源的 TMDB ID
@@ -66,6 +70,8 @@ interface TmdbState {
     topRatedTv: boolean
     airingTodayTv: boolean
     trending: boolean
+    domesticTv: boolean
+    domesticMovie: boolean
     recommendations: boolean
     genres: boolean
   }
@@ -89,6 +95,10 @@ interface TmdbActions {
   fetchAiringTodayTv: () => Promise<void>
   fetchTrending: (timeWindow?: 'day' | 'week') => Promise<void>
   fetchRecommendations: (id: number, mediaType: 'movie' | 'tv') => Promise<void>
+
+  // 国产内容
+  fetchDomesticTv: () => Promise<void>
+  fetchDomesticMovie: () => Promise<void>
 
   // 筛选
   setFilter: (options: Partial<TmdbFilterOptions>) => void
@@ -132,6 +142,9 @@ export const useTmdbStore = create<TmdbState & TmdbActions>()(
       airingTodayTv: [],
       trending: [],
 
+      domesticTv: [],
+      domesticMovie: [],
+
       recommendations: [],
       recommendationSourceId: null,
       recommendationSourceMediaType: null,
@@ -160,6 +173,8 @@ export const useTmdbStore = create<TmdbState & TmdbActions>()(
         topRatedTv: false,
         airingTodayTv: false,
         trending: false,
+        domesticTv: false,
+        domesticMovie: false,
         recommendations: false,
         genres: false,
       },
@@ -532,6 +547,62 @@ export const useTmdbStore = create<TmdbState & TmdbActions>()(
           set(state => {
             state.error = (err as Error).message
             state.loading.airingTodayTv = false
+          })
+        }
+      },
+
+      // 国产剧集（产地=中国大陆）
+      fetchDomesticTv: async () => {
+        const client = getTmdbClient()
+        set(state => {
+          state.loading.domesticTv = true
+        })
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const params: any = {
+            language: getTmdbLanguage(),
+            with_origin_country: 'CN',
+            sort_by: 'popularity.desc',
+          }
+          const res = await client.discover.tvShow(params)
+          set(state => {
+            state.domesticTv = res.results.map(i =>
+              normalizeToMediaItem(i as unknown as Record<string, unknown>, 'tv'),
+            )
+            state.loading.domesticTv = false
+          })
+        } catch (err: unknown) {
+          set(state => {
+            state.error = (err as Error).message
+            state.loading.domesticTv = false
+          })
+        }
+      },
+
+      // 国产电影（产地=中国大陆）
+      fetchDomesticMovie: async () => {
+        const client = getTmdbClient()
+        set(state => {
+          state.loading.domesticMovie = true
+        })
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const params: any = {
+            language: getTmdbLanguage(),
+            with_origin_country: 'CN',
+            sort_by: 'popularity.desc',
+          }
+          const res = await client.discover.movie(params)
+          set(state => {
+            state.domesticMovie = res.results.map(i =>
+              normalizeToMediaItem(i as unknown as Record<string, unknown>, 'movie'),
+            )
+            state.loading.domesticMovie = false
+          })
+        } catch (err: unknown) {
+          set(state => {
+            state.error = (err as Error).message
+            state.loading.domesticMovie = false
           })
         }
       },

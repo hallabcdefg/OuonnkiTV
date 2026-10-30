@@ -412,3 +412,25 @@ export function useTmdbGenres() {
     getGenreName,
   }
 }
+
+/**
+ * 国产内容 Hook（产地=中国大陆）
+ * 进入首页时自动拉取国产剧与国产电影的海报墙数据
+ */
+export function useTmdbDomestic() {
+  const domesticTv = useTmdbStore(s => s.domesticTv)
+  const domesticMovie = useTmdbStore(s => s.domesticMovie)
+  const loading = useTmdbStore(s => ({
+    domesticTv: s.loading.domesticTv,
+    domesticMovie: s.loading.domesticMovie,
+  }))
+  const fetchDomesticTv = useTmdbStore(s => s.fetchDomesticTv)
+  const fetchDomesticMovie = useTmdbStore(s => s.fetchDomesticMovie)
+
+  useEffect(() => {
+    fetchDomesticTv()
+    fetchDomesticMovie()
+  }, [fetchDomesticTv, fetchDomesticMovie])
+
+  return { domesticTv, domesticMovie, loading }
+}

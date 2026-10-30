@@ -37,7 +37,7 @@ function TmdbHomeContent() {
     topRated: topRatedTv,
     loading: tvLoading,
   } = useTmdbTvLists()
-  const { domesticTv, domesticMovie, loading: domesticLoading } = useTmdbDomestic()
+  const { domesticTv, domesticMovie, loadingTv, loadingMovie } = useTmdbDomestic()
   const tmdbRecommendationCandidates = useMemo(() => {
     const tmdbFavorites = favorites.filter(
       (item): item is TmdbFavoriteItem => item.sourceType === 'tmdb',
@@ -70,9 +70,9 @@ function TmdbHomeContent() {
       {/* 首页趋势轮播 */}
       <FeaturedCarousel items={trending} loading={loading.trending} />
       {/* 国产电视剧 */}
-      <MediaCarousel title="国产电视剧" items={domesticTv} loading={domesticLoading.domesticTv} />
+      <MediaCarousel title="国产电视剧" items={domesticTv} loading={loadingTv} />
       {/* 国产电影 */}
-      <MediaCarousel title="国产电影" items={domesticMovie} loading={domesticLoading.domesticMovie} />
+      <MediaCarousel title="国产电影" items={domesticMovie} loading={loadingMovie} />
       {/* 继续观看 */}
       <ContinueWatching />
       {/* 猜你喜欢 */}

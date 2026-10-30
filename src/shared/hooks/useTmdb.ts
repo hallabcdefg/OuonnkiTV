@@ -420,10 +420,8 @@ export function useTmdbGenres() {
 export function useTmdbDomestic() {
   const domesticTv = useTmdbStore(s => s.domesticTv)
   const domesticMovie = useTmdbStore(s => s.domesticMovie)
-  const loading = useTmdbStore(s => ({
-    domesticTv: s.loading.domesticTv,
-    domesticMovie: s.loading.domesticMovie,
-  }))
+  const loadingTv = useTmdbStore(s => s.loading.domesticTv)
+  const loadingMovie = useTmdbStore(s => s.loading.domesticMovie)
   const fetchDomesticTv = useTmdbStore(s => s.fetchDomesticTv)
   const fetchDomesticMovie = useTmdbStore(s => s.fetchDomesticMovie)
 
@@ -432,5 +430,5 @@ export function useTmdbDomestic() {
     fetchDomesticMovie()
   }, [fetchDomesticTv, fetchDomesticMovie])
 
-  return { domesticTv, domesticMovie, loading }
+  return { domesticTv, domesticMovie, loadingTv, loadingMovie }
 }

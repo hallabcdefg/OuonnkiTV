@@ -40,7 +40,8 @@ interface TmdbState {
 
   // 国产内容（产地=中国大陆）
   domesticTv: TmdbMediaItem[]
-  domesticMovie: TmdbMediaItem[],
+  domesticMovie: TmdbMediaItem[]
+  domesticAnimation: TmdbMediaItem[],
 
   // 推荐
   recommendations: TmdbMediaItem[]
@@ -72,6 +73,7 @@ interface TmdbState {
     trending: boolean
     domesticTv: boolean
     domesticMovie: boolean
+    domesticAnimation: boolean
     recommendations: boolean
     genres: boolean
   }
@@ -99,6 +101,7 @@ interface TmdbActions {
   // 国产内容
   fetchDomesticTv: () => Promise<void>
   fetchDomesticMovie: () => Promise<void>
+  fetchDomesticAnimation: () => Promise<void>
 
   // 筛选
   setFilter: (options: Partial<TmdbFilterOptions>) => void
@@ -144,6 +147,7 @@ export const useTmdbStore = create<TmdbState & TmdbActions>()(
 
       domesticTv: [],
       domesticMovie: [],
+      domesticAnimation: [],
 
       recommendations: [],
       recommendationSourceId: null,
@@ -175,6 +179,7 @@ export const useTmdbStore = create<TmdbState & TmdbActions>()(
         trending: false,
         domesticTv: false,
         domesticMovie: false,
+        domesticAnimation: false,
         recommendations: false,
         genres: false,
       },
@@ -551,7 +556,7 @@ export const useTmdbStore = create<TmdbState & TmdbActions>()(
         }
       },
 
-      // 国产剧集（产地=中国大陆）
+      // 国产剧集（产地=中国大陆，排除动画类型）
       fetchDomesticTv: async () => {
         const client = getTmdbClient()
         set(state => {
@@ -562,6 +567,7 @@ export const useTmdbStore = create<TmdbState & TmdbActions>()(
           const params: any = {
             language: getTmdbLanguage(),
             with_origin_country: 'CN',
+            without_genres: '16', // 16 = 动画/Animation，动画单独放「国产动漫」
             sort_by: 'popularity.desc',
           }
           const res = await client.discover.tvShow(params)
@@ -603,6 +609,35 @@ export const useTmdbStore = create<TmdbState & TmdbActions>()(
           set(state => {
             state.error = (err as Error).message
             state.loading.domesticMovie = false
+          })
+        }
+      },
+
+      // 国产动漫（动画类型 + 产地=中国大陆）
+      fetchDomesticAnimation: async () => {
+        const client = getTmdbClient()
+        set(state => {
+          state.loading.domesticAnimation = true
+        })
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const params: any = {
+            language: getTmdbLanguage(),
+            with_origin_country: 'CN',
+            with_genres: '16', // 16 = 动画/Animation
+            sort_by: 'popularity.desc',
+          }
+          const res = await client.discover.tvShow(params)
+          set(state => {
+            state.domesticAnimation = res.results.map(i =>
+              normalizeToMediaItem(i as unknown as Record<string, unknown>, 'tv'),
+            )
+            state.loading.domesticAnimation = false
+          })
+        } catch (err: unknown) {
+          set(state => {
+            state.error = (err as Error).message
+            state.loading.domesticAnimation = false
           })
         }
       },

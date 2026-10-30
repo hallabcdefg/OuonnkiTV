@@ -8,7 +8,7 @@ export const onRequest = async ({ request }: PagesContext) => {
   const headers = new Headers(request.headers)
   headers.delete('host')
   const response = await fetch(target, { method: request.method, headers })
-  const corsHeaders: Record<string, string> = {
+  const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET,OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type,Authorization',

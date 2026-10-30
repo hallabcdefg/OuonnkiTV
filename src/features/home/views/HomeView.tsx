@@ -1,5 +1,4 @@
 import {
-  useTmdbNowPlaying,
   useTmdbMovieLists,
   useTmdbTvLists,
   useTmdbRecommendations,
@@ -10,7 +9,7 @@ import { useViewingHistoryStore } from '@/shared/store'
 import { isTmdbHistoryItem } from '@/shared/lib/viewingHistory'
 import { useTmdbEnabled } from '@/shared/hooks/useTmdbMode'
 import type { TmdbFavoriteItem } from '@/features/favorites/types/favorites'
-import type { TmdbMediaType } from '@/shared/types/tmdb'
+import type { TmdbMediaItem, TmdbMediaType } from '@/shared/types/tmdb'
 import { FeaturedCarousel } from '../components/FeaturedCarousel'
 import { ContinueWatching } from '../components/ContinueWatching'
 import { MediaCarousel } from '../components/MediaCarousel'
@@ -23,7 +22,6 @@ import { useMemo } from 'react'
 function TmdbHomeContent() {
   const favorites = useFavoritesStore(state => state.favorites)
   const viewingHistory = useViewingHistoryStore(state => state.viewingHistory)
-  const { trending, loading } = useTmdbNowPlaying()
   const {
     nowPlaying,
     popular: popularMovies,
@@ -38,6 +36,24 @@ function TmdbHomeContent() {
     loading: tvLoading,
   } = useTmdbTvLists()
   const { domesticTv, domesticMovie, domesticAnimation, loadingTv, loadingMovie, loadingAnimation } = useTmdbDomestic()
+
+  // 首页精选轮播：合并国产剧/国产电影/国产动漫，交错排布，仅展示国产内容
+  const domesticFeatured = useMemo(() => {
+    const maxLen = Math.max(
+      domesticTv.length,
+      domesticMovie.length,
+      domesticAnimation.length,
+    )
+    const merged: TmdbMediaItem[] = []
+    for (let i = 0; i < maxLen; i++) {
+      if (domesticTv[i]) merged.push(domesticTv[i])
+      if (domesticMovie[i]) merged.push(domesticMovie[i])
+      if (domesticAnimation[i]) merged.push(domesticAnimation[i])
+    }
+    return merged
+  }, [domesticTv, domesticMovie, domesticAnimation])
+
+  const featuredLoading = loadingTv || loadingMovie || loadingAnimation
   const tmdbRecommendationCandidates = useMemo(() => {
     const tmdbFavorites = favorites.filter(
       (item): item is TmdbFavoriteItem => item.sourceType === 'tmdb',
@@ -67,8 +83,8 @@ function TmdbHomeContent() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* 首页趋势轮播 */}
-      <FeaturedCarousel items={trending} loading={loading.trending} />
+      {/* 首页趋势轮播（国产精选） */}
+      <FeaturedCarousel items={domesticFeatured} loading={featuredLoading} />
       {/* 继续观看 */}
       <ContinueWatching />
       {/* 国产电视剧 */}

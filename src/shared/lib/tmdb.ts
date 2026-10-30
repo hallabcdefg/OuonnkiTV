@@ -22,7 +22,10 @@ function trimConfigValue(value: string | undefined | null): string {
 
 function normalizeBaseCandidate(value: string): string | null {
   if (!value) return null
-  if (/[?#]/.test(value)) return null
+// 允许相对路径带 query（走 Pages 代理）
+if (value.startsWith('/')) return value
+if (/[?#]/.test(value)) return null
+
 
   if (/^https?:\/\//i.test(value)) {
     try {

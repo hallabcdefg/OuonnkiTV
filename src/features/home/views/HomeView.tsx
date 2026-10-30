@@ -69,14 +69,14 @@ function TmdbHomeContent() {
     <div className="flex flex-col gap-6">
       {/* 首页趋势轮播 */}
       <FeaturedCarousel items={trending} loading={loading.trending} />
+      {/* 继续观看 */}
+      <ContinueWatching />
       {/* 国产电视剧 */}
       <MediaCarousel title="国产电视剧" items={domesticTv} loading={loadingTv} />
       {/* 国产电影 */}
       <MediaCarousel title="国产电影" items={domesticMovie} loading={loadingMovie} />
       {/* 国产动漫 */}
       <MediaCarousel title="国产动漫" items={domesticAnimation} loading={loadingAnimation} />
-      {/* 继续观看 */}
-      <ContinueWatching />
       {/* 猜你喜欢 */}
       <MediaCarousel title="猜你喜欢" items={recommendations} loading={recommendationsLoading} />
       {/* 正在热映 */}

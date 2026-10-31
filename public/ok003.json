@@ -1,0 +1,62 @@
+[
+  {
+    "name": "魔都资源",
+    "url": "https://caiji.moduapi.cc/api.php/provide/vod",
+    "detailUrl": "https://caiji.moduapi.cc/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "name": "爱奇艺资源",
+    "url": "https://iqiyizyapi.com/api.php/provide/vod",
+    "detailUrl": "https://iqiyizyapi.com/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "name": "猫眼资源",
+    "url": "https://api.maoyanapi.top/api.php/provide/vod",
+    "detailUrl": "https://api.maoyanapi.top/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "name": "暴风",
+    "url": "https://bfzyapi.com/api.php/provide/vod",
+    "detailUrl": "https://bfzyapi.com/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "name": "索尼资源2",
+    "url": "https://suoniapi.com/api.php/provide/vod",
+    "detailUrl": "https://suoniapi.com/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "name": "吉吉资源",
+    "url": "https://caiji.jjzyapi.com/api.php/provide/vod",
+    "detailUrl": "https://caiji.jjzyapi.com/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "name": "火狐",
+    "url": "https://hhzyapi.com/api.php/provide/vod",
+    "detailUrl": "https://hhzyapi.com/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "name": "魔塔",
+    "url": "https://mtzy1.com/api.php/provide/vod",
+    "detailUrl": "https://mtzy1.com/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "name": "豆瓣",
+    "url": "https://dbzy.tv/api.php/provide/vod",
+    "detailUrl": "https://dbzy.tv/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "name": "红牛",
+    "url": "https://www.hongniuzy2.com/api.php/provide/vod",
+    "detailUrl": "https://www.hongniuzy2.com/api.php/provide/vod",
+    "isEnabled": true
+  }
+]

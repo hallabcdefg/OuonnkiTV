@@ -23,7 +23,7 @@ async function checkVideoSource(source: VideoSource): Promise<HealthResult> {
   const { defaultTimeout, isProxyEnabled, proxyUrl } = useSettingStore.getState().network
   const timeout = source.timeout || defaultTimeout
 
-  const requestUrl = isProxyEnabled ? buildProxyRequestUrl(source.url, proxyUrl) : source.url
+  const requestUrl = isProxyEnabled ? await buildProxyRequestUrl(source.url, proxyUrl) : source.url
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort('timeout'), timeout)
 

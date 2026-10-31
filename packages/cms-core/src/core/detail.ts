@@ -63,7 +63,7 @@ export async function getVideoDetail(
     const baseUrl = source.detailUrl || source.url
     const detailUrl = buildDetailUrl(baseUrl, id, apiConfig)
     const finalUrl = proxyStrategy.shouldProxy(detailUrl)
-      ? proxyStrategy.applyProxy(detailUrl)
+      ? await proxyStrategy.applyProxy(detailUrl)
       : detailUrl
 
     const response = await requestAdapter.fetch(finalUrl, {

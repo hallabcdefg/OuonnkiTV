@@ -77,3 +77,75 @@ export function getTargetUrl(url) {
 
   return decodeURIComponent(targetUrl)
 }
+
+/**
+ * HMAC-SHA256（Web Crypto），输出 hex 小写。
+ * 同时兼容浏览器 / Cloudflare Workers / Node18+ 的全局 crypto。
+ */
+async function hmacSha256Hex(secret, message) {
+  const enc = new TextEncoder()
+  const key = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  )
+  const signature = await crypto.subtle.sign('HMAC', key, enc.encode(message))
+  return Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+/**
+ * 常量时间字符串比较（防时序侧信道）。长度不同直接判否。
+ */
+function constantTimeEqual(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) {
+    return false
+  }
+  let diff = 0
+  for (let i = 0; i < a.length; i += 1) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  }
+  return diff === 0
+}
+
+/**
+ * 解析签名时间窗口（毫秒），缺省 300000（5 分钟）。
+ */
+export function getProxyWindowMs(raw) {
+  const parsed = Number(raw)
+  if (!Number.isFinite(parsed)) return 300000
+  return Math.floor(parsed)
+}
+
+/**
+ * 校验代理请求签名。
+ * 待签名串： `${t}\n${targetUrl}`（targetUrl 为解码后的原始目标地址）。
+ * 空密钥视为降级：跳过校验，直接放行。
+ *
+ * @returns {{ ok: boolean, reason?: string }}
+ */
+export async function verifyProxySignature({
+  targetUrl,
+  t,
+  sig,
+  secret,
+  windowMs = 300000,
+  now = Date.now(),
+}) {
+  if (!secret) return { ok: true }
+
+  if (!t || !sig) return { ok: false, reason: 'missing_params' }
+
+  const tNum = Number(t)
+  if (!Number.isInteger(tNum)) return { ok: false, reason: 'bad_timestamp' }
+
+  if (Math.abs(now - tNum) > windowMs) return { ok: false, reason: 'expired' }
+
+  const expected = await hmacSha256Hex(secret, `${tNum}\n${targetUrl}`)
+  if (!constantTimeEqual(expected, sig)) return { ok: false, reason: 'signature_mismatch' }
+
+  return { ok: true }
+}

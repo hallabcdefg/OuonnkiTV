@@ -2,8 +2,8 @@ import { useRef, useEffect, useState, useCallback, useMemo } from 'react'
 import {
   createCmsClient,
   createDirectStrategy,
-  createUrlPrefixProxyStrategy,
   type CmsClient,
+  type ProxyStrategy,
   type VideoSource,
   type VideoItem,
   type DetailResult,
@@ -14,7 +14,18 @@ import {
   type SearchErrorEvent,
 } from '@ouonnki/cms-core'
 import { useSettingStore } from '@/shared/store/settingStore'
-import { normalizeProxyPrefix } from '@/shared/config/api.config'
+import { normalizeProxyPrefix, buildProxyRequestUrl } from '@/shared/config/api.config'
+
+/**
+ * 应用层代理策略：开启代理时，统一经由 buildProxyRequestUrl 拼接代理前缀并附加时间戳签名。
+ * 关闭代理时退回直连策略。
+ */
+function createSignedProxyStrategy(proxyUrl?: string): ProxyStrategy {
+  return {
+    shouldProxy: () => true,
+    applyProxy: (url: string) => buildProxyRequestUrl(url, proxyUrl),
+  }
+}
 
 let globalClient: CmsClient | null = null
 let globalNetworkKey: string | null = null
@@ -38,7 +49,7 @@ function getCmsClient(config?: CmsClientConfig): CmsClient {
     globalNetworkKey = networkKey
     globalClient = createCmsClient({
       proxyStrategy: network.isProxyEnabled
-        ? createUrlPrefixProxyStrategy(normalizedProxyUrl)
+        ? createSignedProxyStrategy(normalizedProxyUrl)
         : createDirectStrategy(),
       concurrencyLimit: network.concurrencyLimit,
       ...config,

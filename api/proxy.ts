@@ -1,5 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { getProxyTimeoutMs, handleProxyRequest, parseProxyError } from '../shared/proxy-core.js'
+import {
+  getProxyTimeoutMs,
+  handleProxyRequest,
+  parseProxyError,
+  verifyProxySignature,
+} from '../shared/proxy-core.js'
+
+const UNAUTHORIZED_BODY = { error: 'Unauthorized', message: 'Invalid or expired proxy signature' }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS
@@ -19,6 +26,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const targetUrl = decodeURIComponent(url)
+
+    // 签名校验（空密钥降级）
+    const secret = process.env.OKI_PROXY_SECRET ?? ''
+    if (secret) {
+      const { ok } = await verifyProxySignature({
+        targetUrl,
+        t: typeof req.query.t === 'string' ? req.query.t : null,
+        sig: typeof req.query.sig === 'string' ? req.query.sig : null,
+        secret,
+        windowMs: Number(process.env.PROXY_SIGN_WINDOW_MS) || 300000,
+      })
+      if (!ok) {
+        return res.status(401).json(UNAUTHORIZED_BODY)
+      }
+    }
+
     const response = await handleProxyRequest(targetUrl)
     const text = await response.text()
     const contentType = response.headers.get('content-type') || 'application/json'

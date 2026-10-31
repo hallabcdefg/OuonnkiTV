@@ -36,18 +36,33 @@ export const normalizeProxyPrefix = (proxyUrl?: string | null): string => {
   return base.includes('?') ? `${base}&url=` : `${base}?url=`
 }
 
-export const buildProxyRequestUrl = (targetUrl: string, proxyUrl?: string | null): string => {
+export const buildProxyRequestUrl = async (
+  targetUrl: string,
+  proxyUrl?: string | null,
+): Promise<string> => {
   const normalized = normalizeProxyPrefix(proxyUrl)
+
+  let base: string
   if (normalized.includes('{url}')) {
-    return normalized.split('{url}').join(encodeURIComponent(targetUrl))
+    base = normalized.split('{url}').join(encodeURIComponent(targetUrl))
+  } else {
+    base = normalized + encodeURIComponent(targetUrl)
   }
-  return normalized + encodeURIComponent(targetUrl)
+
+  // 追加时间戳签名（密钥为空时 signProxyUrl 返回空，不附加任何参数）
+  const { t, sig } = await signProxyUrl(targetUrl)
+  if (t && sig) {
+    base += `${base.includes('?') ? '&' : '?'}t=${t}&sig=${sig}`
+  }
+
+  return base
 }
 
 import type { VideoApi } from '@/shared/types/video'
 import { INITIAL_CONFIG, type VideoSourceConfig } from './initialConfig'
 import { DEFAULT_SETTINGS } from './settings.config'
 import { getPublicEnv } from './runtimeEnv'
+import { signProxyUrl } from '@/shared/lib/proxySigner'
 
 type VideoSourceInput = VideoSourceConfig[] | string | undefined
 
@@ -89,7 +104,7 @@ export const loadVideoSources = async (input: VideoSourceInput): Promise<VideoAp
 
   if (remoteUrl) {
     try {
-      const response = await fetch(buildProxyRequestUrl(remoteUrl.toString()))
+      const response = await fetch(await buildProxyRequestUrl(remoteUrl.toString()))
       if (!response.ok) {
         console.error(`无法获取视频源，HTTP状态: ${response.status}`)
         return []

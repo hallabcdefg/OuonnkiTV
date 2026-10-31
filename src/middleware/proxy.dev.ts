@@ -4,6 +4,7 @@ import {
   getProxyTimeoutMs,
   getTargetUrl,
   parseProxyError,
+  verifyProxySignature,
 } from '../shared/lib/proxy'
 
 export function proxyMiddleware(): Plugin {
@@ -17,6 +18,31 @@ export function proxyMiddleware(): Plugin {
 
         try {
           const targetUrl = getTargetUrl(req.url)
+
+          // 签名校验（空密钥降级，本地未配置 OKI_PROXY_SECRET 时跳过）
+          const secret = process.env.OKI_PROXY_SECRET ?? ''
+          if (secret) {
+            const parsed = new URL(req.url, 'http://localhost')
+            const { ok } = await verifyProxySignature({
+              targetUrl,
+              t: parsed.searchParams.get('t'),
+              sig: parsed.searchParams.get('sig'),
+              secret,
+              windowMs: Number(process.env.PROXY_SIGN_WINDOW_MS) || 300000,
+            })
+            if (!ok) {
+              res.setHeader('Access-Control-Allow-Origin', '*')
+              res.writeHead(401, { 'Content-Type': 'application/json' })
+              res.end(
+                JSON.stringify({
+                  error: 'Unauthorized',
+                  message: 'Invalid or expired proxy signature',
+                }),
+              )
+              return
+            }
+          }
+
           const response = await handleProxyRequest(targetUrl)
           const text = await response.text()
           const contentType = response.headers.get('content-type') || 'application/json'

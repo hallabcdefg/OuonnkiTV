@@ -40,7 +40,9 @@ export async function listVideos(
     }
 
     const apiUrl = buildListUrl(source.url, page)
-    const finalUrl = proxyStrategy.shouldProxy(apiUrl) ? proxyStrategy.applyProxy(apiUrl) : apiUrl
+    const finalUrl = proxyStrategy.shouldProxy(apiUrl)
+      ? await proxyStrategy.applyProxy(apiUrl)
+      : apiUrl
 
     const response = await requestAdapter.fetch(finalUrl, {
       headers: {

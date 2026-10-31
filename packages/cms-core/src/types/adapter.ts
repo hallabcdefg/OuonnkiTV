@@ -31,8 +31,9 @@ export interface ProxyStrategy {
   /**
    * 应用代理到URL
    * @param url 原始URL
+   * @returns 代理后的完整请求 URL（可为 Promise，用于异步签名）
    */
-  applyProxy(url: string): string
+  applyProxy(url: string): string | Promise<string>
 
   /**
    * 判断是否需要代理

@@ -51,7 +51,9 @@ export async function searchVideos(
     }
 
     const apiUrl = buildSearchUrl(source.url, query, page, apiConfig)
-    const finalUrl = proxyStrategy.shouldProxy(apiUrl) ? proxyStrategy.applyProxy(apiUrl) : apiUrl
+    const finalUrl = proxyStrategy.shouldProxy(apiUrl)
+      ? await proxyStrategy.applyProxy(apiUrl)
+      : apiUrl
 
     const response = await requestAdapter.fetch(finalUrl, {
       headers: apiConfig.search.headers,

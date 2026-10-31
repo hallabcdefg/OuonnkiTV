@@ -6,9 +6,9 @@
     "isEnabled": true
   },
   {
-    "name": "爱奇艺资源",
-    "url": "https://iqiyizyapi.com/api.php/provide/vod",
-    "detailUrl": "https://iqiyizyapi.com/api.php/provide/vod",
+    "name": "百度",
+    "url": "https://api.apibdzy.com/api.php/provide/vod",
+    "detailUrl": "https://api.apibdzy.com/api.php/provide/vod",
     "isEnabled": true
   },
   {
@@ -42,15 +42,15 @@
     "isEnabled": true
   },
   {
-    "name": "魔塔",
-    "url": "https://mtzy1.com/api.php/provide/vod",
-    "detailUrl": "https://mtzy1.com/api.php/provide/vod",
+    "name": "新浪",
+    "url": "http://api.xinlangapi.com/xinlangapi.php/provide/vod",
+    "detailUrl": "http://api.xinlangapi.com/xinlangapi.php/provide/vod",
     "isEnabled": true
   },
   {
-    "name": "豆瓣",
-    "url": "https://dbzy.tv/api.php/provide/vod",
-    "detailUrl": "https://dbzy.tv/api.php/provide/vod",
+    "name": "优酷资源",
+    "url": "https://apiyutu.com/api.php/provide/vod",
+    "detailUrl": "https://apiyutu.com/api.php/provide/vod",
     "isEnabled": true
   },
   {

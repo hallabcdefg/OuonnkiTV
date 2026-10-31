@@ -12,9 +12,9 @@
     "isEnabled": true
   },
   {
-    "name": "茅台资源",
-    "url": "https://caiji.maotaizy.cc/api.php/provide/vod",
-    "detailUrl": "https://caiji.maotaizy.cc/api.php/provide/vod",
+    "name": "天涯资源2",
+    "url": "https://ty.tyyszy5.com/api.php/provide/vod",
+    "detailUrl": "https://ty.tyyszy5.com/api.php/provide/vod",
     "isEnabled": true
   },
   {
@@ -30,9 +30,9 @@
     "isEnabled": true
   },
   {
-    "name": "量子",
-    "url": "https://cj.lziapi.com/api.php/provide/vod",
-    "detailUrl": "https://cj.lziapi.com/api.php/provide/vod",
+    "name": "悟空资源",
+    "url": "https://www.wyvod.com/api.php/provide/vod",
+    "detailUrl": "https://www.wyvod.com/api.php/provide/vod",
     "isEnabled": true
   },
   {

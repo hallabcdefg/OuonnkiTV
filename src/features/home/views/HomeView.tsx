@@ -25,7 +25,6 @@ function TmdbHomeContent() {
   const {
     nowPlaying,
     popular: popularMovies,
-    topRated: topRatedMovies,
     upcoming,
     loading: movieLoading,
   } = useTmdbMovieLists()
@@ -102,12 +101,6 @@ function TmdbHomeContent() {
         title="最受欢迎的电影"
         items={popularMovies}
         loading={movieLoading.popularMovies}
-      />
-      {/* 口碑最佳的电影 */}
-      <MediaCarousel
-        title="口碑最佳的电影"
-        items={topRatedMovies}
-        loading={movieLoading.topRatedMovies}
       />
       {/* 即将上映 */}
       <MediaCarousel title="即将上映" items={upcoming} loading={movieLoading.upcomingMovies} />

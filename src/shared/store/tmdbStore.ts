@@ -570,9 +570,31 @@ export const useTmdbStore = create<TmdbState & TmdbActions>()(
             without_genres: '16', // 16 = 动画/Animation，动画单独放「国产动漫」
             sort_by: 'popularity.desc',
           }
-          const res = await client.discover.tvShow(params)
+          // 优先展示当年（如 2026）的国产剧：先单独拉当年列表，再拉整体热门补充，去重后当年在前
+          const currentYear = new Date().getFullYear()
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const yearParams: any = { ...params, first_air_date_year: currentYear }
+          const [yearResult, allResult] = await Promise.allSettled([
+            client.discover.tvShow(yearParams),
+            client.discover.tvShow(params),
+          ])
+          // 整体热门列表拉取失败才算真失败；当年列表失败则降级为纯热门排序
+          if (allResult.status === 'rejected') {
+            throw allResult.reason
+          }
+          const yearItems =
+            yearResult.status === 'fulfilled' ? yearResult.value.results : []
+          const allItems = allResult.value.results
+          // 当年在前、热门在后，按 TMDB id 去重，组内保持各自的热度排序
+          const seenIds = new Set<number>()
+          const merged = [...yearItems, ...allItems].filter(item => {
+            const id = (item as { id?: number }).id
+            if (typeof id !== 'number' || seenIds.has(id)) return false
+            seenIds.add(id)
+            return true
+          })
           set(state => {
-            state.domesticTv = res.results.map(i =>
+            state.domesticTv = merged.map(i =>
               normalizeToMediaItem(i as unknown as Record<string, unknown>, 'tv'),
             )
             state.loading.domesticTv = false

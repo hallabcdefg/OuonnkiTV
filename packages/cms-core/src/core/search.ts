@@ -9,6 +9,7 @@ import type {
 } from '../types'
 
 import { buildSearchUrl } from '../utils/url'
+import { filterAdultVideoItems } from '../utils/nsfw'
 
 /**
  * 搜索配置
@@ -79,13 +80,15 @@ export async function searchVideos(
       }
     }
 
-    // 添加源信息到每个结果
-    const items: VideoItem[] = data.list.map((item: VideoItem) => ({
-      ...item,
-      source_name: source.name,
-      source_code: source.id,
-      api_url: source.url,
-    }))
+    // 添加源信息到每个结果，并剔除成人 / 色情条目
+    const items: VideoItem[] = filterAdultVideoItems(
+      data.list.map((item: VideoItem) => ({
+        ...item,
+        source_name: source.name,
+        source_code: source.id,
+        api_url: source.url,
+      })),
+    )
 
     // 解析分页信息
     const pagination: Pagination = {

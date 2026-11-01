@@ -8,6 +8,8 @@ import type {
 } from '../types'
 
 import { buildListUrl } from '../utils/url'
+import { filterAdultVideoItems } from '../utils/nsfw'
+import { sortCmsItems } from '../utils/sort'
 
 /**
  * 列表请求配置
@@ -72,13 +74,17 @@ export async function listVideos(
       }
     }
 
-    // 添加源信息到每个结果
-    const items: VideoItem[] = data.list.map((item: VideoItem) => ({
-      ...item,
-      source_name: source.name,
-      source_code: source.id,
-      api_url: source.url,
-    }))
+    // 添加源信息到每个结果，剔除成人 / 色情条目，并按「国产优先、电视剧在前电影在后、当年优先」排序
+    const items: VideoItem[] = sortCmsItems(
+      filterAdultVideoItems(
+        data.list.map((item: VideoItem) => ({
+          ...item,
+          source_name: source.name,
+          source_code: source.id,
+          api_url: source.url,
+        })),
+      ),
+    )
 
     // 解析分页信息
     const pagination: Pagination = {

@@ -181,6 +181,19 @@ export function getLogoUrl(path: string | null, size = 'w500'): string {
   return buildTmdbImageUrl(path, size)
 }
 
+// 垃圾标题特征：TMDB 社区翻译会被 vandalize，塞入色情/赌博站点推广（含 .com 等网址特征）。
+// 命中则回退显示原名，避免首页卡片展示推广文字。
+const SPAM_TITLE_URL_RE =
+  /https?:\/\/|www\.[a-z0-9-]+\.|[\w一-龥-]+\.(?:com|net|org|tv|cc|cn|xyz|top|vip|me|info|live|site|fun|app|online|shop|mobi)\b/i
+// 高精度黑名单：这些词本身几乎不可能出现在正常片名里
+const SPAM_TITLE_BLACKLIST = ['淫片', '黄涩', '免费观看', '在线观看', '现金网', '博彩', '葡京', '网络赌博', '色情']
+
+export function isLikelySpamTitle(title: string): boolean {
+  if (!title) return false
+  if (SPAM_TITLE_URL_RE.test(title)) return true
+  return SPAM_TITLE_BLACKLIST.some(k => title.includes(k))
+}
+
 // 数据转换器
 export function normalizeToMediaItem(
   raw: Record<string, unknown>,
@@ -191,9 +204,12 @@ export function normalizeToMediaItem(
   // 处理日期
   const releaseDate = (isMovie ? raw.release_date : raw.first_air_date) as string
 
-  // 处理标题
-  const title = (isMovie ? raw.title : raw.name) as string
+  // 处理标题：zh-CN 翻译可能被 vandalize 塞入推广网址，命中垃圾特征时回退原名
+  let title = (isMovie ? raw.title : raw.name) as string
   const originalTitle = (isMovie ? raw.original_title : raw.original_name) as string
+  if (isLikelySpamTitle(title) && originalTitle) {
+    title = originalTitle
+  }
 
   // 处理产地 (TV通常有 origin_country, Movie通常没有，但在某些endpoint可能有)
   const originCountry = Array.isArray(raw.origin_country) ? (raw.origin_country as string[]) : []

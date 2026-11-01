@@ -48,12 +48,6 @@
     "isEnabled": true
   },
   {
-    "name": "优酷资源",
-    "url": "https://apiyutu.com/api.php/provide/vod",
-    "detailUrl": "https://apiyutu.com/api.php/provide/vod",
-    "isEnabled": true
-  },
-  {
     "name": "红牛",
     "url": "https://www.hongniuzy2.com/api.php/provide/vod",
     "detailUrl": "https://www.hongniuzy2.com/api.php/provide/vod",
